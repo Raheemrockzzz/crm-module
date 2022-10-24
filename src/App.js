@@ -1,8 +1,6 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import './App.css';
+
 import Login from './pages/Login';
 import Admin from './pages/Admin';
 import Customer from './pages/Customer';
@@ -10,6 +8,16 @@ import Engineer from './pages/Engineer';
 import NotFound from './pages/NotFound';
 import RequireAuth from './components/RequireAuth';
 import Unauth from './pages/Unauthorized';
+
+import '@coreui/coreui/dist/css/coreui.min.css';
+import '@coreui/coreui/dist/js/coreui.min.js'
+import 'react-circular-progressbar/dist/styles.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../node_modules/bootstrap-icons/font/bootstrap-icons.css';
+// composer require twbs / bootstrap - icons
+
+import './App.css';
 //1st week: login//signup page=> for 3 types of users
 //1. UI 2. API Integration 3. Final flow
 
@@ -28,13 +36,13 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Login />} />
         {/*Ptotected routes by require auth starts */}
-        <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN]} />}>
+        {/* <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN]} />}> */}
           <Route path="/admin" element={<Admin />} />
-        </Route>
+        {/* </Route> */}
         <Route element={<RequireAuth allowedRoles={[ROLES.ENGINEER]} />}>
           <Route path="/engineer" element={<Engineer />} />
         </Route>
-        <Route element={<RequireAuth allowedRoles= {[ROLES.CUSTOMER]} />}>
+        <Route element={<RequireAuth allowedRoles={[ROLES.CUSTOMER]} />}>
           <Route path="/customer" element={<Customer />} />
         </Route>
         {/*Ptotected routes by require auth end */}
