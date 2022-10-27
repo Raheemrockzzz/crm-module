@@ -9,6 +9,25 @@ import { fetchTicket, ticketUpdation } from "../api/tickets";
 import Sidebar from "../components/Sidebar";
 import { Modal } from "react-bootstrap";
 
+/*
+TASKS:
+create a common component for widgets
+GET API for users: userid
+create a fucntion getAllUsers()=>fetch the api=>store the array of objects in state =>user details 
+pass the userdetails in material table 
+*/
+
+// PUT API for users : userid, updated new data -> change of status
+/*
+1. Grab the curr user using onRowClick
+2. create a funciton and then we need to store the details of the user -> open a modal
+3. Modal will show all the curr details -> print all user details in the user modal
+4. Grab the new updated value and store it in a state
+5. Fetch the api ->userId, updated data -> log the response 
+*/
+
+
+
 // PUT logic
 /*
 1. Grab the curr ticket: ticket id, all the curr data along with it 
@@ -41,7 +60,11 @@ const userColumns = [
   { title: "NAME", field: "name" },
   { title: "EMAIL", field: "email" },
   { title: "ROLE", field: "role" },
-  { title: "STATUS", field: "status" },
+  { title: "STATUS", field: "status", lookup:{
+    'APPROVED': 'APPROVED',
+    'REJECTED': 'REJECTED',
+    'PENDING': 'PENDING'
+  } },
 ];
 
 
@@ -53,6 +76,15 @@ const Admin = () => {
   const [ticketStatusCount, setTicketStatusCount] = useState({});
   const [ticketUpdationModal, setTicketUpdationModal] = useState(false);
   const [selectedCurrTicket, setSelectedCurrTicket] = useState({});
+  
+  // get api and store data for the user
+  const [userDetails, setUserDetails] = useState([]);
+  // open and close the user modal
+  const [userUpdationModal, setUserUpdationModal] = useState(false);
+  // to store the curr user details and the updated user details 
+  const [selectedCurrUser, serSelectedCurrUser] = useState({});
+
+  const [message, setMessage] = useState("");
 
   const updateSelectedCurrTicket = (data) => setSelectedCurrTicket(data);
 
@@ -68,7 +100,7 @@ const Admin = () => {
       setTicketDetails(response.data)
       updateTicketCount(response.data)
     }).catch((error) => {
-      console.log(error);
+      setMessage(error.response.data.message); 
     })
   }
 
@@ -139,7 +171,7 @@ const Admin = () => {
       // fetching the tickets again to update the table and the widgets
       fetchTickets();
     }).catch(function (error) {
-      console.log(error);
+      setMessage(error.response.data.message);
     })
   }
 // console.log(fetchTickets);
@@ -230,6 +262,11 @@ const Admin = () => {
 
       </div>
       {/* widgets end */}
+
+        <div className="text-center">
+          <h5 className="text-info">{message}</h5>
+        </div>
+
       <div className="container">
         <MaterialTable
           // 1.grabbing the specific ticket from the row 
@@ -256,9 +293,7 @@ const Admin = () => {
             }]
           }}
         / >
-
-        <button onClick={openTicketUpdationModal}>Ticket Update</button>
-
+       
         {ticketUpdationModal ? (
           <Modal
             show={ticketUpdationModal}
@@ -342,6 +377,61 @@ const Admin = () => {
             }]
           }}
         />
+         <button className="btn btn-danger m-1" onClick={()=>setUserUpdationModal(true)}>Update user details</button>
+        {userUpdationModal ? (
+          <Modal
+            show={userUpdationModal}
+            onHide={closeTicketUpdationModal}
+            backdrop="static"
+            centered>
+
+            <Modal.Header closeButton>
+              <Modal.Title>Update USER DETAILS</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              {/* submit the details  and we will call the api */}
+              <form 
+              // onSubmit={updateUser}
+              >
+                <div className="p-1">
+                  <h5 className=" card-subtitle mb-2 text-danger"> User ID :  </h5>
+                </div>
+                <div className="input-group mb-2">
+                  {/* if equal lable size required then set height and width  for labelSize */}
+                  <label className="label input-group-text label-md">Name</label>
+                  <input type="text" disabled className="form-control" />
+                </div>
+
+                <div className="input-group mb-2">
+                  <label className="label input-group-text label-md">Email</label>
+                  <input type="text" disabled  className="form-control" />
+                </div>
+                <div className="input-group mb-2">
+                  <label className="label input-group-text label-md">Role</label>
+                  <input type="text" disabled className="form-control" />
+                </div>
+                {/* onchange: grabbing the new updates values from UI */}
+               
+                <div className="input-group mb-2">
+                  <label className="label input-group-text label-md">Status</label>
+                  <select name="status" className="form-select" value={selectedCurrTicket.status} 
+                  // onChange={onUserUpdate}
+                  >
+                    <option value="APPROVED">APPROVED</option>
+                    <option value="PENDING">PENDING</option>
+                    <option value="REJECTED">REJECTED</option>
+                  </select>
+                </div>
+               
+                <div className="d-flex justify-content-end">
+                  <Button variant='secondary' className='m-1' onClick={closeTicketUpdationModal}>Cancel</Button>
+                  <Button variant='danger' className='m-1' type="submit">Update</Button>
+
+                </div>
+              </form>
+            </Modal.Body>
+          </Modal>
+        ) : null}
       </div>
     </div>
   )

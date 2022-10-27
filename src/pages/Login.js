@@ -1,9 +1,10 @@
 import React from 'react'
 import { useState } from 'react';
 import { DropdownButton, Dropdown } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import { userSignin } from '../api/auth';
 
-// Signup : userid, username, emial,password
+// Signup : userid, username, emial, usertype, password
 // login: email, password
 
 // POST API
@@ -18,6 +19,9 @@ const Login = () => {
   const [userType, setUserType] = useState("CUSTOMER");
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+
+  const navigate = useNavigate();
 
   const updateSigupData = (e) => {
     if (e.target.id === 'userid') {
@@ -28,6 +32,12 @@ const Login = () => {
     }
   }
   const singupFn = () => {
+    /*
+    1. prevent default
+    2. data: userid, name,email, password, userType
+    3. call the api and pass data
+    4. display the successful message
+    */
     console.log("Signup button is triggered")
   }
 
@@ -49,21 +59,26 @@ const Login = () => {
       
       if(response.data.userTypes === "CUSTOMER")
       {
-        window.location.href = "/customer";
+        navigate('/customer')
+        // window.location.href = "/customer";
       }
       else if (response.data.userTypes === "ENGINEER")
       {
-        window.location.href ="/engineer";   
+        navigate('/engineer')
+        // window.location.href ="/engineer";   
       }
       else if (response.data.userTypes === "ADMIN"){
-        window.location.href="/admin"
+        navigate('/admin')
+        // window.location.href="/admin"
       }
       else{
-        window.location.href = "/";
+        navigate('/')
+        // window.location.href = "/";
       }
 
     }).catch((error) => {
       console.log(error);
+      setMessage(error.response.data.message)
     })
   }
 
@@ -109,9 +124,11 @@ const Login = () => {
             <input type="submit" className='form-control btn btn-info text-white fw-bolder m-1' value={showSignup ? "Sign Up" : "Log In"} />
           </div>
 
-          <div className='m-1 text-primary' onClick={toogleSignup}>
+          <div className='m-1 text-center text-primary clickable' onClick={toogleSignup}>
             {showSignup ? "Already have an account? Login" : "Don't have an account? Signup"}
           </div>
+
+          <div className="text-center text-danger">{message}</div>
 
         </form>
       </div>

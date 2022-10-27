@@ -1,10 +1,15 @@
 import React from 'react';
 import { CSidebar, CSidebarNav, CNavTitle,CNavItem } from '@coreui/react';
+import {Navigate, useNavigate} from 'react-router-dom';
 
 function Sidebar() {
+
+    const navigate = useNavigate();
+
     const logoutFn=()=>{
         localStorage.clear();
-        window.location.href="/";
+        navigate('/');
+        // window.location.href="/";
     }
     return(
         <CSidebar unfoldable className='vh-100 bg-black'>
