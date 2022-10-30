@@ -4,6 +4,7 @@ import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import { ExportPdf } from '@material-table/exporters';
 import { ExportCsv } from "@material-table/exporters";
 import Button from 'react-bootstrap/Button';
+import Widget from "../components/Widgets";
 
 import { fetchTicket, ticketUpdation } from "../api/tickets";
 import Sidebar from "../components/Sidebar";
@@ -60,11 +61,13 @@ const userColumns = [
   { title: "NAME", field: "name" },
   { title: "EMAIL", field: "email" },
   { title: "ROLE", field: "role" },
-  { title: "STATUS", field: "status", lookup:{
-    'APPROVED': 'APPROVED',
-    'REJECTED': 'REJECTED',
-    'PENDING': 'PENDING'
-  } },
+  {
+    title: "STATUS", field: "status", lookup: {
+      'APPROVED': 'APPROVED',
+      'REJECTED': 'REJECTED',
+      'PENDING': 'PENDING'
+    }
+  },
 ];
 
 
@@ -76,7 +79,7 @@ const Admin = () => {
   const [ticketStatusCount, setTicketStatusCount] = useState({});
   const [ticketUpdationModal, setTicketUpdationModal] = useState(false);
   const [selectedCurrTicket, setSelectedCurrTicket] = useState({});
-  
+
   // get api and store data for the user
   const [userDetails, setUserDetails] = useState([]);
   // open and close the user modal
@@ -100,7 +103,7 @@ const Admin = () => {
       setTicketDetails(response.data)
       updateTicketCount(response.data)
     }).catch((error) => {
-      setMessage(error.response.data.message); 
+      setMessage(error.response.data.message);
     })
   }
 
@@ -174,7 +177,7 @@ const Admin = () => {
       setMessage(error.response.data.message);
     })
   }
-// console.log(fetchTickets);
+  // console.log(fetchTickets);
   return (
     <div className='bg-light vh-100% '>
       <Sidebar />
@@ -186,27 +189,8 @@ const Admin = () => {
       {/* Widget starts */}
       <div className="row ms-5 ps-5 m-3 ">
         {/* W1 */}
-        <div className="col-xs-12 col-lg-3 col-md-6">
-          <div className="card shadow bg-primary bg-opacity-25" style={{ width: 15 + 'rem' }}>
-            <h5 className="card-subtitle m-2 text-primary fw-bolder text-center"><i className="bi bi-envelope-open">Open</i></h5>
-            <hr />
-            <div className="row mb-2 d-flex align-items-center">
-              <div className="col text-primary mx-4 fw-bolder display-6">{ticketStatusCount.open}</div>
-              <div className="col">
-                {/* size of circular bar */}
-                <div style={{ width: 40, height: 40 }}>
-                  {/* how to use?
-              import from top
-               value={the count of tickets}
-               buildStyle({}): a function that accepts obj. obj takes css styles in key value format. colors can be accepted in hex, rgpa, and text names */}
-                  <CircularProgressbar value={ticketStatusCount.open} styles={buildStyles({
-                    pathColor: 'darkblue'
-                  })} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* {color, title, icon, ticketCount, pathColor} */}
+        <Widget color="primary" title="OPEN" icon="envelope" ticketCount={ticketStatusCount.open} pathColor="darkblue" />
 
         {/* W2 */}
         <div className="col-xs-12 col-lg-3 col-md-6 my-1">
@@ -263,9 +247,9 @@ const Admin = () => {
       </div>
       {/* widgets end */}
 
-        <div className="text-center">
-          <h5 className="text-info">{message}</h5>
-        </div>
+      <div className="text-center">
+        <h5 className="text-info">{message}</h5>
+      </div>
 
       <div className="container">
         <MaterialTable
@@ -292,8 +276,8 @@ const Admin = () => {
               exportFunc: (cols, data) => ExportCsv(cols, data, 'userRecords')
             }]
           }}
-        / >
-       
+        />
+
         {ticketUpdationModal ? (
           <Modal
             show={ticketUpdationModal}
@@ -377,7 +361,7 @@ const Admin = () => {
             }]
           }}
         />
-         <button className="btn btn-danger m-1" onClick={()=>setUserUpdationModal(true)}>Update user details</button>
+        <button className="btn btn-danger m-1" onClick={() => setUserUpdationModal(true)}>Update user details</button>
         {userUpdationModal ? (
           <Modal
             show={userUpdationModal}
@@ -390,7 +374,7 @@ const Admin = () => {
             </Modal.Header>
             <Modal.Body>
               {/* submit the details  and we will call the api */}
-              <form 
+              <form
               // onSubmit={updateUser}
               >
                 <div className="p-1">
@@ -404,17 +388,17 @@ const Admin = () => {
 
                 <div className="input-group mb-2">
                   <label className="label input-group-text label-md">Email</label>
-                  <input type="text" disabled  className="form-control" />
+                  <input type="text" disabled className="form-control" />
                 </div>
                 <div className="input-group mb-2">
                   <label className="label input-group-text label-md">Role</label>
                   <input type="text" disabled className="form-control" />
                 </div>
                 {/* onchange: grabbing the new updates values from UI */}
-               
+
                 <div className="input-group mb-2">
                   <label className="label input-group-text label-md">Status</label>
-                  <select name="status" className="form-select" value={selectedCurrTicket.status} 
+                  <select name="status" className="form-select" value={selectedCurrTicket.status}
                   // onChange={onUserUpdate}
                   >
                     <option value="APPROVED">APPROVED</option>
@@ -422,7 +406,7 @@ const Admin = () => {
                     <option value="REJECTED">REJECTED</option>
                   </select>
                 </div>
-               
+
                 <div className="d-flex justify-content-end">
                   <Button variant='secondary' className='m-1' onClick={closeTicketUpdationModal}>Cancel</Button>
                   <Button variant='danger' className='m-1' type="submit">Update</Button>
