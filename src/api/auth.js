@@ -1,6 +1,14 @@
 import axios from 'axios'
 const BASE_URL = "https://relevel-crm--backend.herokuapp.com"
 
+
+/*HOW Post API wokrs:.
+
+1. first we need to grab info from the UI
+2. sote it into the state
+3. send the data to api
+*/
+
 /*
 SIGNUP:
 POST : api

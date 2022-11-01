@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from "react";
 import MaterialTable from "@material-table/core";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
-import { ExportPdf } from '@material-table/exporters';
+import { ExportPdf } from "@material-table/exporters";
 import { ExportCsv } from "@material-table/exporters";
-import Button from 'react-bootstrap/Button';
+import Button from "react-bootstrap/Button";
 import Widget from "../components/Widgets";
 
 import { fetchTicket, ticketUpdation } from "../api/tickets";
 import Sidebar from "../components/Sidebar";
 import { Modal } from "react-bootstrap";
+import { getAllUser, userUpdation } from "../api/user";
 
+/*STEPS TO PERFORM ADMIN PAGE
+
+
+
+*/
 /*
 TASKS:
 create a common component for widgets
@@ -27,8 +33,6 @@ pass the userdetails in material table
 5. Fetch the api ->userId, updated data -> log the response 
 */
 
-
-
 // PUT logic
 /*
 1. Grab the curr ticket: ticket id, all the curr data along with it 
@@ -45,36 +49,35 @@ const columns = [
   { title: "DESCRIPTION", field: "description" },
   { title: "REPORTER", field: "reporter" },
   { title: "ASSIGNEE", field: "assignee" },
-  { title: "ticketPRIORITY", field: "ticketPriority" },
+  { title: "PRIORITY", field: "ticketPriority" },
   {
-    title: "STATUS", field: "status",
+    title: "STATUS",
+    field: "status",
     lookup: {
-      "OPEN": "OPEN",
-      "IN_PROGRESS": "IN_PROGRESS",
-      "CLOSED": "CLOSED",
-      "BLOCKED": "BLOCKED"
-    }
+      OPEN: "OPEN",
+      IN_PROGRESS: "IN_PROGRESS",
+      CLOSED: "CLOSED",
+      BLOCKED: "BLOCKED",
+    },
   },
 ];
 const userColumns = [
-  { title: "ID", field: "id" },
+  { title: "ID", field: "userId" },
   { title: "NAME", field: "name" },
   { title: "EMAIL", field: "email" },
-  { title: "ROLE", field: "role" },
+  { title: "ROLE", field: "userTypes" },
   {
-    title: "STATUS", field: "status", lookup: {
-      'APPROVED': 'APPROVED',
-      'REJECTED': 'REJECTED',
-      'PENDING': 'PENDING'
-    }
+    title: "STATUS",
+    field: "userStatus",
+    lookup: {
+      APPROVED: "APPROVED",
+      REJECTED: "REJECTED",
+      PENDING: "PENDING",
+    },
   },
 ];
 
-
-
-
 const Admin = () => {
-
   const [ticketDetails, setTicketDetails] = useState([]);
   const [ticketStatusCount, setTicketStatusCount] = useState({});
   const [ticketUpdationModal, setTicketUpdationModal] = useState(false);
@@ -84,8 +87,8 @@ const Admin = () => {
   const [userDetails, setUserDetails] = useState([]);
   // open and close the user modal
   const [userUpdationModal, setUserUpdationModal] = useState(false);
-  // to store the curr user details and the updated user details 
-  const [selectedCurrUser, serSelectedCurrUser] = useState({});
+  // to store the curr user details and the updated user details
+  const [selectedCurrUser, setSelectedCurrUser] = useState({});
 
   const [message, setMessage] = useState("");
 
@@ -94,43 +97,60 @@ const Admin = () => {
   const openTicketUpdationModal = () => setTicketUpdationModal(true);
   const closeTicketUpdationModal = () => setTicketUpdationModal(false);
 
+  const updateSelecteCurrUser = (data) => setSelectedCurrUser(data);
+
+  const openUserUpdationModal = () => setUserUpdationModal(true);
+  const closeUserUpdationModal = () => setUserUpdationModal(false);
+
   useEffect(() => {
-    fetchTickets()
-  }, [])
+    fetchTickets();
+    getAllUsers();
+  }, []);
 
   const fetchTickets = () => {
-    fetchTicket().then((response) => {
-      setTicketDetails(response.data)
-      updateTicketCount(response.data)
-    }).catch((error) => {
-      setMessage(error.response.data.message);
-    })
-  }
+    fetchTicket()
+      .then((response) => {
+        setTicketDetails(response.data);
+        updateTicketCount(response.data);
+      })
+      .catch((error) => {
+        setMessage(error.response.data.message);
+      });
+  };
+
+  const getAllUsers = () => {
+    getAllUser()
+      .then(function (response) {
+        setUserDetails(response.data);
+      })
+      .catch(function (error) {
+        setMessage(error.response.data.message);
+      });
+  };
+
+  console.log("***", userDetails);
 
   const updateTicketCount = (tickets) => {
     const data = {
       open: 0,
       closed: 0,
       progress: 0,
-      blocked: 0
-    }
+      blocked: 0,
+    };
 
-    tickets.forEach(x => {
+    tickets.forEach((x) => {
       if (x.status === "OPEN") {
         data.open += 1;
-      }
-      else if (x.status === "CLOSED") {
+      } else if (x.status === "CLOSED") {
         data.closed += 1;
-      }
-      else if (x.status === "IN_PROGRESS") {
+      } else if (x.status === "IN_PROGRESS") {
         data.progress += 1;
-      }
-      else if (x.status === "BLOCKED") {
+      } else if (x.status === "BLOCKED") {
         data.blocked += 1;
       }
-    })
-    setTicketStatusCount(Object.assign({}, data))
-  }
+    });
+    setTicketStatusCount(Object.assign({}, data));
+  };
 
   // 2. Store the curr ticket in a state=> display current ticket details in the modal
 
@@ -143,107 +163,124 @@ const Admin = () => {
       reporter: ticketDetail.reporter,
       status: ticketDetail.status,
       ticketPriority: ticketDetail.ticketPriority,
-
-    }
+    };
     console.log("selected ticket", ticketDetail);
     setTicketUpdationModal(true);
     setSelectedCurrTicket(ticket);
-  }
+  };
+
+  const editUser = (userDetail) => {
+    const user = {
+      userId:userDetail.userId,
+      name: userDetail.name,
+      email: userDetail.email,
+      userTypes: userDetail.userTypes,
+      userStatus: userDetail.userStatus
+    };
+        console.log("selected user", userDetail);
+    setUserUpdationModal(true);
+    setSelectedCurrUser(user);
+  };
 
   // 3.Grab the new updated values and store in a state
 
   const onTicketUpdate = (e) => {
     if (e.target.name === "ticketPriority")
-      selectedCurrTicket.ticketPriority = e.target.value
+      selectedCurrTicket.ticketPriority = e.target.value;
     else if (e.target.name === "status")
-      selectedCurrTicket.status = e.target.value
+      selectedCurrTicket.status = e.target.value;
     else if (e.target.name === "description")
-      selectedCurrTicket.description = e.target.value
+      selectedCurrTicket.description = e.target.value;
 
-    updateSelectedCurrTicket(Object.assign({}, selectedCurrTicket))
+    updateSelectedCurrTicket(Object.assign({}, selectedCurrTicket));
+  };
+
+  const onUserUpdate = (e) =>{
+    if (e.target.name === "userStatus")
+     selectedCurrUser.userStatus = e.target.value;
+
+     updateSelecteCurrUser(Object.assign({}, selectedCurrUser))
   }
 
-  //4. call the api with the new updated data 
+  //4. call the api with the new updated data
 
   const updateTicket = (e) => {
     e.preventDefault();
-    ticketUpdation(selectedCurrTicket.id, selectedCurrTicket).then(function (response) {
+    ticketUpdation(selectedCurrTicket.id, selectedCurrTicket)
+      .then(function (response) {
+      
+        // closing the modal
+        setTicketUpdationModal(false);
+        // fetching the tickets again to update the table and the widgets
+        fetchTickets();
+      })
+      .catch(function (error) {
+        setMessage(error.response.data.message);
+      });
+  };
+
+  const updateUser = (e)=>{
+    e.preventDefault();
+    userUpdation(selectedCurrUser.userId, selectedCurrUser)
+    .then(function (response){
       console.log(response);
-      // closing the modal
-      setTicketUpdationModal(false);
-      // fetching the tickets again to update the table and the widgets
-      fetchTickets();
-    }).catch(function (error) {
-      setMessage(error.response.data.message);
+      setUserUpdationModal(false);
+      getAllUsers();
+
+    })
+    .catch(function (error){
+      setMessage(error.response.data.message)
     })
   }
   // console.log(fetchTickets);
   return (
-    <div className='bg-light vh-100% '>
+    <div className="bg-light vh-100% ">
       <Sidebar />
       {/* welcome text */}
       <div className="container mx-auto px-2">
         <h3 className="text-center text-danger">Welcome, Admin!</h3>
-        <p className="text-muted text-center">Take a quick look at your admin start below</p>
+        <p className="text-muted text-center">
+          Take a quick look at your admin start below
+        </p>
       </div>
       {/* Widget starts */}
       <div className="row ms-5 ps-5 m-3 ">
         {/* W1 */}
         {/* {color, title, icon, ticketCount, pathColor} */}
-        <Widget color="primary" title="OPEN" icon="envelope" ticketCount={ticketStatusCount.open} pathColor="darkblue" />
+        <Widget
+          color="primary"
+          title="OPEN"
+          icon="envelope"
+          ticketCount={ticketStatusCount.open}
+          pathColor="darkblue"
+        />
 
         {/* W2 */}
-        <div className="col-xs-12 col-lg-3 col-md-6 my-1">
-          <div className="card shadow bg-warning bg-opacity-25" style={{ width: 15 + 'rem' }}>
-            <h5 className="card-subtitle m-2 text-warning fw-bolder text-center"><i className="bi bi-hourglass-split   mx-2">Progress</i></h5>
-            <hr />
-            <div className="row mb-2 d-flex align-items-center">
-              <div className="col text-warning mx-4 fw-bolder display-6">{ticketStatusCount.progress}</div>
-              <div className="col">
-                <div style={{ width: 40, height: 40 }}>
-                  <CircularProgressbar value={ticketStatusCount.progress} styles={buildStyles({
-                    pathColor: 'darkgoldenrod'
-                  })} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* W3 */}
-        <div className="col-xs-12 col-lg-3 col-md-6 my-1 ">
-          <div className="card shadow bg-success bg-opacity-25" style={{ width: 15 + 'rem' }}>
-            <h5 className="card-subtitle m-2 fw-bolder text-success text-center"><i className="bi bi-check2-circle  mx-2">Closed</i></h5>
-            <hr />
-            <div className="row mx- mb-2 d-flex align-items-center">
-              <div className="col text-success mx-4 fw-bolder display-6">{ticketStatusCount.closed}</div>
-              <div className="col">
-                <div style={{ width: 40, height: 40 }}>
-                  <CircularProgressbar value={ticketStatusCount.closed} styles={buildStyles({
-                    pathColor: 'darkgreen'
-                  })} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* W4 */}
-        <div className="col-xs-12 col-lg-3 col-md-6 my-1">
-          <div className="card shadow bg-secondary bg-opacity-25" style={{ width: 15 + 'rem' }}>
-            <h5 className="card-subtitle m-2 fw-bolder text-secondary text-center"><i className="bi bi-slash-circle  mx-2">Blocked</i></h5>
-            <hr />
-            <div className="row mx- mb-2 d-flex align-items-center">
-              <div className="col text-secondary mx-4 fw-bolder display-6">{ticketStatusCount.blocked}</div>
-              <div className="col">
-                <div style={{ width: 40, height: 40 }}>
-                  <CircularProgressbar value={ticketStatusCount.blocked} styles={buildStyles({
-                    pathColor: 'darkgrey'
-                  })} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Widget
+          color="warning"
+          title="PROGRESS"
+          icon="hourglass-split"
+          ticketCount={ticketStatusCount.progress}
+          pathColor="darkgoldenrod"
+        />
 
+        {/* W3 */}
+        <Widget
+          color="success"
+          title="CLOSED"
+          icon="check2-circle"
+          ticketCount={ticketStatusCount.closed}
+          pathColor="darkgreen"
+        />
+
+        {/* W4 */}
+        <Widget
+          color="secondary"
+          title="BLOCKED"
+          icon="slash-circle"
+          ticketCount={ticketStatusCount.blocked}
+          pathColor="darkgrey"
+        />
       </div>
       {/* widgets end */}
 
@@ -253,7 +290,7 @@ const Admin = () => {
 
       <div className="container">
         <MaterialTable
-          // 1.grabbing the specific ticket from the row 
+          // 1.grabbing the specific ticket from the row
           onRowClick={(event, rowData) => editTicket(rowData)}
           title="Ticket Details"
           columns={columns}
@@ -267,14 +304,18 @@ const Admin = () => {
             rowStyle: {
               backgroundColor: "#eee",
             },
-            exportMenu: [{
-              label: 'Export pdf',
-              exportFunc: (cols, data) => ExportPdf(cols, data, 'userRecords')
-            },
-            {
-              label: 'Export Csv',
-              exportFunc: (cols, data) => ExportCsv(cols, data, 'userRecords')
-            }]
+            exportMenu: [
+              {
+                label: "Export pdf",
+                exportFunc: (cols, data) =>
+                  ExportPdf(cols, data, "userRecords"),
+              },
+              {
+                label: "Export Csv",
+                exportFunc: (cols, data) =>
+                  ExportCsv(cols, data, "userRecords"),
+              },
+            ],
           }}
         />
 
@@ -283,8 +324,8 @@ const Admin = () => {
             show={ticketUpdationModal}
             onHide={closeTicketUpdationModal}
             backdrop="static"
-            centered>
-
+            centered
+          >
             <Modal.Header closeButton>
               <Modal.Title>Update Ticket</Modal.Title>
             </Modal.Header>
@@ -292,32 +333,66 @@ const Admin = () => {
               {/* submit the details  and we will call the api */}
               <form onSubmit={updateTicket}>
                 <div className="p-1">
-                  <h5 className=" card-subtitle mb-2 text-danger"> User ID : {selectedCurrTicket.id} </h5>
+                  <h5 className=" card-subtitle mb-2 text-danger">
+                    {" "}
+                    User ID : {selectedCurrTicket.id}{" "}
+                  </h5>
                 </div>
                 <div className="input-group mb-2">
                   {/* if equal lable size required then set height and width  for labelSize */}
-                  <label className="label input-group-text label-md">Title</label>
-                  <input type="text" disabled value={selectedCurrTicket.title} className="form-control" />
+                  <label className="label input-group-text label-md">
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={selectedCurrTicket.title}
+                    className="form-control"
+                  />
                 </div>
 
                 <div className="input-group mb-2">
-                  <label className="label input-group-text label-md">Reporter</label>
-                  <input type="text" disabled value={selectedCurrTicket.reporter} className="form-control" />
+                  <label className="label input-group-text label-md">
+                    Reporter
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={selectedCurrTicket.reporter}
+                    className="form-control"
+                  />
                 </div>
                 <div className="input-group mb-2">
-                  <label className="label input-group-text label-md">Assignee</label>
+                  <label className="label input-group-text label-md">
+                    Assignee
+                  </label>
                   <select name="assignee" className="form-control">
                     <option value="">Raheem</option>
                   </select>
                 </div>
                 {/* onchange: grabbing the new update values from UI */}
                 <div className="input-group mb-2">
-                  <label className="label input-group-text label-md">Priority</label>
-                  <input type="number" value={selectedCurrTicket.ticketPriority} className="form-control" name="ticketPriority" onChange={onTicketUpdate} />
+                  <label className="label input-group-text label-md">
+                    Priority
+                  </label>
+                  <input
+                    type="number"
+                    value={selectedCurrTicket.ticketPriority}
+                    className="form-control"
+                    name="ticketPriority"
+                    onChange={onTicketUpdate}
+                  />
                 </div>
                 <div className="input-group mb-2">
-                  <label className="label input-group-text label-md">Status</label>
-                  <select name="status" className="form-select" value={selectedCurrTicket.status} onChange={onTicketUpdate}>
+                  <label className="label input-group-text label-md">
+                    Status
+                  </label>
+                  <select
+                    name="status"
+                    className="form-select"
+                    value={selectedCurrTicket.status}
+                    onChange={onTicketUpdate}
+                  >
                     <option value="OPEN">OPEN</option>
                     <option value="CLOSED">CLOSED</option>
                     <option value="IN_PROGRESS">IN_PROGRESS</option>
@@ -325,13 +400,29 @@ const Admin = () => {
                   </select>
                 </div>
                 <div className="input-group mb-2">
-                  <label className="label input-group-text label-md">Description</label>
-                  <textarea type="text" value={selectedCurrTicket.description} className="md-textarea form-control" rows='3' name='description' onChange={onTicketUpdate} />
+                  <label className="label input-group-text label-md">
+                    Description
+                  </label>
+                  <textarea
+                    type="text"
+                    value={selectedCurrTicket.description}
+                    className="md-textarea form-control"
+                    rows="3"
+                    name="description"
+                    onChange={onTicketUpdate}
+                  />
                 </div>
                 <div className="d-flex justify-content-end">
-                  <Button variant='secondary' className='m-1' onClick={closeTicketUpdationModal}>Cancel</Button>
-                  <Button variant='danger' className='m-1' type="submit">Update</Button>
-
+                  <Button
+                    variant="secondary"
+                    className="m-1"
+                    onClick={closeTicketUpdationModal()}
+                  >
+                    Cancel
+                  </Button>
+                  <Button variant="danger" className="m-1" type="submit">
+                    Update
+                  </Button>
                 </div>
               </form>
             </Modal.Body>
@@ -339,9 +430,10 @@ const Admin = () => {
         ) : null}
         <hr />
         <MaterialTable
+          onRowClick={(event, rowData) => editUser(rowData)}
           title="User Details"
           columns={userColumns}
-          // data={data}
+          data={userDetails}
           options={{
             filtering: true,
             headerStyle: {
@@ -351,55 +443,93 @@ const Admin = () => {
             rowStyle: {
               backgroundColor: "#eee",
             },
-            exportMenu: [{
-              label: 'Export Pdf',
-              exportFunc: (cols, data) => ExportPdf(cols, data, 'userRecords')
-            },
-            {
-              label: 'Export Csv',
-              exportFunc: (cols, data) => ExportCsv(cols, data, 'userRecords')
-            }]
+            exportMenu: [
+              {
+                label: "Export Pdf",
+                exportFunc: (cols, data) =>
+                  ExportPdf(cols, data, "userRecords"),
+              },
+              {
+                label: "Export Csv",
+                exportFunc: (cols, data) =>
+                  ExportCsv(cols, data, "userRecords"),
+              },
+            ],
           }}
         />
-        <button className="btn btn-danger m-1" onClick={() => setUserUpdationModal(true)}>Update user details</button>
+        {/* <button
+          className="btn btn-danger m-1"
+          onClick={() => openUserUpdationModal(true)}
+        >
+          Update user details
+        </button> */}
         {userUpdationModal ? (
           <Modal
             show={userUpdationModal}
-            onHide={closeTicketUpdationModal}
+            onHide={closeUserUpdationModal}
             backdrop="static"
-            centered>
-
+            centered
+          >
             <Modal.Header closeButton>
               <Modal.Title>Update USER DETAILS</Modal.Title>
             </Modal.Header>
             <Modal.Body>
               {/* submit the details  and we will call the api */}
               <form
-              // onSubmit={updateUser}
+              onSubmit={updateUser}
               >
                 <div className="p-1">
-                  <h5 className=" card-subtitle mb-2 text-danger"> User ID :  </h5>
+                  <h5 className=" card-subtitle mb-2 text-danger">
+                    User ID :{selectedCurrUser.userId}
+                  </h5>
                 </div>
                 <div className="input-group mb-2">
                   {/* if equal lable size required then set height and width  for labelSize */}
-                  <label className="label input-group-text label-md">Name</label>
-                  <input type="text" disabled className="form-control" />
+                  <label className="label input-group-text label-md">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    className="form-control"
+                    value={selectedCurrUser.name}
+                  />
                 </div>
 
                 <div className="input-group mb-2">
-                  <label className="label input-group-text label-md">Email</label>
-                  <input type="text" disabled className="form-control" />
+                  <label className="label input-group-text label-md">
+                    Email
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    className="form-control"
+                    value={selectedCurrUser.email}
+                  />
                 </div>
                 <div className="input-group mb-2">
-                  <label className="label input-group-text label-md">Role</label>
-                  <input type="text" disabled className="form-control" />
+                  <label className="label input-group-text label-md">
+                    Role
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    className="form-control"
+                    value={selectedCurrUser.userTypes}
+                  />
                 </div>
                 {/* onchange: grabbing the new updates values from UI */}
 
                 <div className="input-group mb-2">
-                  <label className="label input-group-text label-md">Status</label>
-                  <select name="status" className="form-select" value={selectedCurrTicket.status}
-                  // onChange={onUserUpdate}
+                  <label className="label input-group-text label-md">
+                    Status
+                  </label>
+                  <select
+                    name="userStatus"
+                    className="form-select"
+                    value={selectedCurrUser.userStatus}
+
+                    onChange={onUserUpdate}
                   >
                     <option value="APPROVED">APPROVED</option>
                     <option value="PENDING">PENDING</option>
@@ -408,9 +538,16 @@ const Admin = () => {
                 </div>
 
                 <div className="d-flex justify-content-end">
-                  <Button variant='secondary' className='m-1' onClick={closeTicketUpdationModal}>Cancel</Button>
-                  <Button variant='danger' className='m-1' type="submit">Update</Button>
-
+                  <Button
+                    variant="secondary"
+                    className="m-1"
+                    onClick={closeUserUpdationModal}
+                  >
+                    Cancel
+                  </Button>
+                  <Button variant="danger" className="m-1" type="submit">
+                    Update
+                  </Button>
                 </div>
               </form>
             </Modal.Body>
@@ -418,7 +555,7 @@ const Admin = () => {
         ) : null}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Admin
+export default Admin;

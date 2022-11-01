@@ -1,8 +1,8 @@
 import axios from 'axios'
 const BASE_URL = "https://relevel-crm--backend.herokuapp.com"
 
-export async function getAllUsers(userId) {
-    return await axios.get(`${BASE_URL}/crm/api/v1/users/${userId}`, 
+export async function getAllUser() {
+    return await axios.get(`${BASE_URL}/crm/api/v1/users/`, 
     {
         headers: {
             'x-access-token': localStorage.getItem("token")
