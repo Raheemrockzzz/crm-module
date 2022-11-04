@@ -61,10 +61,10 @@ const Engineer = () => {
   const [message, setMessage] = useState("");
   // store selected curr ticket
   const [selectedCurrTicket, setSelectedCurrTicket] = useState({});
-// store the selected curr ticket update/ new data
-  const updateSelectedCurrTicket = (data) =>setSelectedCurrTicket(data)
-// close modal
-  const closeTicketUpdationModal = ()=>setTicketUpdationModal(false);
+  // store the selected curr ticket update/ new data
+  const updateSelectedCurrTicket = (data) => setSelectedCurrTicket(data);
+  // close modal
+  const closeTicketUpdationModal = () => setTicketUpdationModal(false);
 
   useEffect(() => {
     (async () => {
@@ -127,36 +127,36 @@ const Engineer = () => {
     else if (e.target.name === "status")
       selectedCurrTicket.status = e.target.value;
 
-      updateSelectedCurrTicket(Object.assign({}, selectedCurrTicket));
+    updateSelectedCurrTicket(Object.assign({}, selectedCurrTicket));
   };
 
-// fetch put api with updated details
-const updateTicket = (e)=>{
-
-  e.preventDefault();
-  ticketUpdation(selectedCurrTicket.id, selectedCurrTicket).then(function (res){
-    setMessage("ticket updated successfully");
-    fetchTickets()
-    closeTicketUpdationModal()
-  }).catch(function (error){
-    setMessage(error.response.data.message);
-  })
-
-}
+  // fetch put api with updated details
+  const updateTicket = (e) => {
+    e.preventDefault();
+    ticketUpdation(selectedCurrTicket.id, selectedCurrTicket)
+      .then(function (res) {
+        setMessage("ticket updated successfully");
+        fetchTickets();
+        closeTicketUpdationModal();
+      })
+      .catch(function (error) {
+        setMessage(error.response.data.message);
+      });
+  };
 
   return (
     <div className="bg-light vh-100">
       <Sidebar />
+
       <div className="container py-5">
         <h3 className="text-center text-primary">
-          {" "}
-          Welcome {localStorage.getItem("name")}
+          Welcome {localStorage.getItem("name")}!
         </h3>
         <p className="lead text-muted text-center">
           Take a quick look at your engineer stats below!
         </p>
         {/* Widget starts  : props : color, title, icon, ticketCount, pathColor*/}
-        <div className="row">
+        <div className="row ">
           <Widget
             color="primary"
             title="OPEN"
@@ -191,8 +191,10 @@ const updateTicket = (e)=>{
         <MaterialTable
           onRowClick={(event, rowData) => editTicket(rowData)}
           columns={columns}
+          data={ticketDetails}
           title="TICKET ASSIGNED TO YOU"
           options={{
+            filtering: true,
             exportMenu: [
               {
                 label: "Export Pdf",
@@ -214,11 +216,11 @@ const updateTicket = (e)=>{
             },
           }}
         />
-        
+
         {ticketUpdationModal ? (
           <Modal
             show={ticketUpdationModal}
-            data={ticketDetails}
+            // data={ticketDetails}
             onHide={() => setTicketUpdationModal(false)}
             backdrop="static"
             centered
@@ -258,11 +260,11 @@ const updateTicket = (e)=>{
                     PRIORITY
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     name="priority"
                     onChange={onTicketUpdate}
                     className="form-control"
-                    value={selectedCurrTicket.ticketPriority}
+                    value={selectedCurrTicket.priority}
                   />
                 </div>
                 <div className="input-group m-1">
@@ -284,6 +286,7 @@ const updateTicket = (e)=>{
                   <select
                     className="form-select"
                     value={selectedCurrTicket.status}
+                    onChange={onTicketUpdate}
                     name="status"
                   >
                     <option value="OPEN">OPEN</option>

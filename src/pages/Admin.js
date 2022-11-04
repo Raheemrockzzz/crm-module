@@ -11,11 +11,7 @@ import Sidebar from "../components/Sidebar";
 import { Modal } from "react-bootstrap";
 import { getAllUser, userUpdation } from "../api/user";
 
-/*STEPS TO PERFORM ADMIN PAGE
 
-
-
-*/
 /*
 TASKS:
 create a common component for widgets
@@ -166,6 +162,8 @@ const Admin = () => {
     };
     console.log("selected ticket", ticketDetail);
     setTicketUpdationModal(true);
+    // openTicketUpdationModal();
+    // ticketUpdationModal(true);
     setSelectedCurrTicket(ticket);
   };
 
