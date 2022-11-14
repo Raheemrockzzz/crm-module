@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import MaterialTable from "@material-table/core";
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+// import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import { ExportPdf } from "@material-table/exporters";
 import { ExportCsv } from "@material-table/exporters";
 import Button from "react-bootstrap/Button";
@@ -10,7 +10,6 @@ import { fetchTicket, ticketUpdation } from "../api/tickets";
 import Sidebar from "../components/Sidebar";
 import { Modal } from "react-bootstrap";
 import { getAllUser, userUpdation } from "../api/user";
-
 
 /*
 TASKS:
@@ -78,6 +77,14 @@ const Admin = () => {
   const [ticketStatusCount, setTicketStatusCount] = useState({});
   const [ticketUpdationModal, setTicketUpdationModal] = useState(false);
   const [selectedCurrTicket, setSelectedCurrTicket] = useState({});
+  
+  const [message, setMessage] = useState("");
+  
+  const updateSelectedCurrTicket = (data) => setSelectedCurrTicket(data);
+
+  // const closeTicketUpdationModal = () => setTicketUpdationModal(false);
+  // const openTicketUpdationModal = () => setTicketUpdationModal(true);
+
 
   // get api and store data for the user
   const [userDetails, setUserDetails] = useState([]);
@@ -85,22 +92,17 @@ const Admin = () => {
   const [userUpdationModal, setUserUpdationModal] = useState(false);
   // to store the curr user details and the updated user details
   const [selectedCurrUser, setSelectedCurrUser] = useState({});
-
-  const [message, setMessage] = useState("");
-
-  const updateSelectedCurrTicket = (data) => setSelectedCurrTicket(data);
-
-  const openTicketUpdationModal = () => setTicketUpdationModal(true);
-  const closeTicketUpdationModal = () => setTicketUpdationModal(false);
+  
 
   const updateSelecteCurrUser = (data) => setSelectedCurrUser(data);
 
-  const openUserUpdationModal = () => setUserUpdationModal(true);
+  // const openUserUpdationModal = () => setUserUpdationModal(true);
   const closeUserUpdationModal = () => setUserUpdationModal(false);
 
   useEffect(() => {
     fetchTickets();
     getAllUsers();
+    // eslint-disable-next-line
   }, []);
 
   const fetchTickets = () => {
@@ -169,13 +171,13 @@ const Admin = () => {
 
   const editUser = (userDetail) => {
     const user = {
-      userId:userDetail.userId,
+      userId: userDetail.userId,
       name: userDetail.name,
       email: userDetail.email,
       userTypes: userDetail.userTypes,
-      userStatus: userDetail.userStatus
+      userStatus: userDetail.userStatus,
     };
-        console.log("selected user", userDetail);
+    console.log("selected user", userDetail);
     setUserUpdationModal(true);
     setSelectedCurrUser(user);
   };
@@ -193,12 +195,12 @@ const Admin = () => {
     updateSelectedCurrTicket(Object.assign({}, selectedCurrTicket));
   };
 
-  const onUserUpdate = (e) =>{
+  const onUserUpdate = (e) => {
     if (e.target.name === "userStatus")
-     selectedCurrUser.userStatus = e.target.value;
+      selectedCurrUser.userStatus = e.target.value;
 
-     updateSelecteCurrUser(Object.assign({}, selectedCurrUser))
-  }
+    updateSelecteCurrUser(Object.assign({}, selectedCurrUser));
+  };
 
   //4. call the api with the new updated data
 
@@ -206,7 +208,6 @@ const Admin = () => {
     e.preventDefault();
     ticketUpdation(selectedCurrTicket.id, selectedCurrTicket)
       .then(function (response) {
-      
         // closing the modal
         setTicketUpdationModal(false);
         // fetching the tickets again to update the table and the widgets
@@ -217,19 +218,18 @@ const Admin = () => {
       });
   };
 
-  const updateUser = (e)=>{
+  const updateUser = (e) => {
     e.preventDefault();
     userUpdation(selectedCurrUser.userId, selectedCurrUser)
-    .then(function (response){
-      console.log(response);
-      setUserUpdationModal(false);
-      getAllUsers();
-
-    })
-    .catch(function (error){
-      setMessage(error.response.data.message)
-    })
-  }
+      .then(function (response) {
+        console.log(response);
+        setUserUpdationModal(false);
+        getAllUsers();
+      })
+      .catch(function (error) {
+        setMessage(error.response.data.message);
+      });
+  };
   // console.log(fetchTickets);
   return (
     <div className="bg-light vh-100% ">
@@ -310,8 +310,8 @@ const Admin = () => {
               },
               {
                 label: "Export Csv",
-                exportFunc: (cols, data) =>
-                  ExportCsv(cols, data, "userRecords"),
+                exportFunc: (cols, datas) =>
+                  ExportCsv(cols, datas, "userRecords"),
               },
             ],
           }}
@@ -320,7 +320,7 @@ const Admin = () => {
         {ticketUpdationModal ? (
           <Modal
             show={ticketUpdationModal}
-            onHide={closeTicketUpdationModal}
+            onHide={()=>setTicketUpdationModal(false)}
             backdrop="static"
             centered
           >
@@ -414,7 +414,7 @@ const Admin = () => {
                   <Button
                     variant="secondary"
                     className="m-1"
-                    onClick={closeTicketUpdationModal()}
+                    onClick={()=>setTicketUpdationModal(false)}
                   >
                     Cancel
                   </Button>
@@ -427,6 +427,7 @@ const Admin = () => {
           </Modal>
         ) : null}
         <hr />
+       
         <MaterialTable
           onRowClick={(event, rowData) => editUser(rowData)}
           title="User Details"
@@ -473,9 +474,7 @@ const Admin = () => {
             </Modal.Header>
             <Modal.Body>
               {/* submit the details  and we will call the api */}
-              <form
-              onSubmit={updateUser}
-              >
+              <form onSubmit={updateUser}>
                 <div className="p-1">
                   <h5 className=" card-subtitle mb-2 text-danger">
                     User ID :{selectedCurrUser.userId}
@@ -526,7 +525,6 @@ const Admin = () => {
                     name="userStatus"
                     className="form-select"
                     value={selectedCurrUser.userStatus}
-
                     onChange={onUserUpdate}
                   >
                     <option value="APPROVED">APPROVED</option>

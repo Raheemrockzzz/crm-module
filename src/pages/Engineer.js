@@ -1,12 +1,12 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import Sidebar from "../components/Sidebar";
 import MaterialTable from "@material-table/core";
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
-import Widget from "../components/Widgets";
 import { Modal, ModalHeader, Button } from "react-bootstrap";
-import { fetchTicket, ticketUpdation } from "../api/tickets";
 
+import Sidebar from "../components/Sidebar";
+import Widget from "../components/Widgets";
+import { fetchTicket, ticketUpdation } from "../api/tickets";
 /*
 Engineer signup -> contact admin to put them in approved state -> login
 */
@@ -69,7 +69,9 @@ const Engineer = () => {
   useEffect(() => {
     (async () => {
       fetchTickets();
+      // eslint-disable-next-line
     })();
+    // eslint-disable-next-line
   }, []);
 
   // get all tickets list

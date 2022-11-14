@@ -59,23 +59,9 @@ const Login = () => {
       .then((response) => {
         console.log(response);
 
-
-        localStorage.setItem("name", response.data.name);
-        localStorage.setItem("userId", response.data.userId);
-        localStorage.setItem("email", response.data.email);
-        localStorage.setItem("userTypes", response.data.userTypes);
-        localStorage.setItem("userStatus", response.data.userStatus);
-        localStorage.setItem("token", response.data.accessToken);
-
-        
-
-
-
-       
         setStatus(
           `${response.data.userTypes} Signup  ${response.request.statusText} Successfully!!`
         );
-         
       })
       .catch(function (error) {
         setMessage(error.response.data.message);
@@ -116,7 +102,6 @@ const Login = () => {
         }
       })
       .catch((error) => {
-        console.log(error);
         setMessage(error.response.data.message);
       });
   };
@@ -144,7 +129,7 @@ const Login = () => {
         style={{ width: 20 + "rem" }}
       >
         <h4 className="text-center text-info">
-          {showSignup ? "Sign Up" : "Log In"}
+          {showSignup ? "Sign Up" : "Sign In"}
         </h4>
 
         <form onSubmit={showSignup ? singupFn : loginFn}>
@@ -210,7 +195,7 @@ const Login = () => {
             <input
               type="submit"
               className="form-control btn btn-info text-white fw-bolder m-1"
-              value={showSignup ? "Sign Up" : "Log In"}
+              value={showSignup ? "Sign Up" : "Sign In"}
             />
           </div>
 
@@ -222,7 +207,7 @@ const Login = () => {
               ? "Already have an account? Login"
               : "Don't have an account? Signup"}
           </div>
-
+        
           <div className="text-center text-danger">{message}</div>
           <div className="text-center fw-bolder text-success">{status}</div>
         </form>

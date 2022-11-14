@@ -16,7 +16,6 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../node_modules/bootstrap-icons/font/bootstrap-icons.css';
 // composer require twbs / bootstrap - icons
-
 import './App.css';
 //1st week: login//signup page=> for 3 types of users
 //1. UI 2. API Integration 3. Final flow
@@ -34,7 +33,7 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Login  />} />
         {/*Ptotected routes by require auth starts */}
         <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN]} />}>
           <Route path="/admin" element={<Admin />} />
