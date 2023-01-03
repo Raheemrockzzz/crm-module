@@ -4,7 +4,7 @@ function RequireAuth({allowedRoles}){
     const location = useLocation();
 return(
     // getItem("property naem") === first value in the array
-    localStorage.getItem("userTypes") === allowedRoles [0] ?
+    localStorage.getItem("userTypes") === allowedRoles[0] ?
     // placeholder to return the specific route
     <Outlet />
     // false condition with usertype presetn but not matching the allowed role

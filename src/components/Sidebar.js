@@ -1,6 +1,6 @@
 import React from 'react';
 import { CSidebar, CSidebarNav, CNavTitle,CNavItem } from '@coreui/react';
-import {Navigate, useNavigate} from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
 
 function Sidebar() {
 
