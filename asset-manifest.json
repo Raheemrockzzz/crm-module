@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/crm-module/static/css/main.54f61ada.css",
+    "main.js": "/crm-module/static/js/main.9efd385c.js",
+    "static/js/498.0932efc1.chunk.js": "/crm-module/static/js/498.0932efc1.chunk.js",
+    "static/js/703.d1e15d1e.chunk.js": "/crm-module/static/js/703.d1e15d1e.chunk.js",
+    "static/js/513.038b5cd3.chunk.js": "/crm-module/static/js/513.038b5cd3.chunk.js",
+    "static/media/bootstrap-icons.woff?": "/crm-module/static/media/bootstrap-icons.e559bf06bc84fd9525e6.woff",
+    "static/media/bootstrap-icons.woff2?": "/crm-module/static/media/bootstrap-icons.ea98e12d2d58747f9fc5.woff2",
+    "static/media/Not.svg": "/crm-module/static/media/Not.fe0654cc0928b0299439fd614b11adb3.svg",
+    "static/media/403.svg": "/crm-module/static/media/403.2ac447c7335ababb31572ad47effe183.svg",
+    "index.html": "/crm-module/index.html",
+    "main.54f61ada.css.map": "/crm-module/static/css/main.54f61ada.css.map",
+    "main.9efd385c.js.map": "/crm-module/static/js/main.9efd385c.js.map",
+    "498.0932efc1.chunk.js.map": "/crm-module/static/js/498.0932efc1.chunk.js.map",
+    "703.d1e15d1e.chunk.js.map": "/crm-module/static/js/703.d1e15d1e.chunk.js.map",
+    "513.038b5cd3.chunk.js.map": "/crm-module/static/js/513.038b5cd3.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.54f61ada.css",
+    "static/js/main.9efd385c.js"
+  ]
+}
